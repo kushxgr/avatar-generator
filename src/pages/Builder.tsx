@@ -1,3 +1,5 @@
+import { useState, useRef, useMemo } from "react";
+import Avatar from "../components/Avatar/Avatar";
 import type {
   AvatarConfig,
   AvatarShape,
@@ -10,6 +12,14 @@ import type {
   HatStyle,
 } from "../types/avatar";
 
+
+
+function randomColor(): string {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
+
+
+// 👇 your existing code continues
 const SHAPES: { label: string; value: AvatarShape }[] = [
   { label: "Circle", value: "circle" },
   { label: "Square", value: "square" },
@@ -47,14 +57,20 @@ const GLASSES = [
   { label: "None", value: "none" },
   { label: "Round", value: "round" },
   { label: "Square", value: "square" },
-  { label: "Sunglasses", value: "sunglasses" },
+  { label: "Shades", value: "shades" },
+  { label: "Aviator", value: "aviator" },
+  { label: "Thick", value: "thick" },
+  { label: "Mono", value: "mono" },
 ] as const;
 
 const HATS = [
   { label: "None", value: "none" },
   { label: "Cap", value: "cap" },
   { label: "Beanie", value: "beanie" },
-  { label: "Party", value: "party" },
+  { label: "Top Hat", value: "topHat" },
+  { label: "Bucket", value: "bucket" },
+  { label: "Crown", value: "crown" },
+  { label: "Headphones", value: "headphones" },
 ] as const;
 
 const HANDS: { label: string; value: HandStyle }[] = [
@@ -107,7 +123,7 @@ function OptionGroup<T extends string>({
   onChange,
 }: {
   title: string;
-  options: { label: string; value: T }[];
+  options: readonly { label: string; value: T }[];
   value: T;
   onChange: (value: T) => void;
 }) {
@@ -170,10 +186,10 @@ export default function Builder() {
       legs: pick(LEGS).value,
       glasses: pick(GLASSES).value as GlassesStyle,
       hat: pick(HATS).value as HatStyle,
-      limbColor: pick(PALETTE),
-      headColor: pick(["#ffd8a8", "#ffe0bd", "#f8c89c", "#f7d7c4"]),
-      eyeColor: pick(["#151515", "#1b1b1b", "#222222"]),
-      mouthColor: pick(["#151515", "#1b1b1b", "#222222"]),
+      limbColor: randomColor(),
+      headColor: randomColor(),
+      eyeColor: randomColor(),
+      mouthColor: randomColor(),
     });
     setColorTarget("limb");
   }
