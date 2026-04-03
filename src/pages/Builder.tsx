@@ -1,5 +1,3 @@
-import { useMemo, useState, useRef } from "react";
-import Avatar from "../components/Avatar/Avatar";
 import type {
   AvatarConfig,
   AvatarShape,
@@ -8,6 +6,8 @@ import type {
   HandStyle,
   LegStyle,
   MouthStyle,
+  GlassesStyle,
+  HatStyle,
 } from "../types/avatar";
 
 const SHAPES: { label: string; value: AvatarShape }[] = [
@@ -47,21 +47,15 @@ const GLASSES = [
   { label: "None", value: "none" },
   { label: "Round", value: "round" },
   { label: "Square", value: "square" },
-  { label: "Shades", value: "shades" },
-  { label: "Aviator", value: "aviator" },
-  { label: "Thick Frame", value: "thick" },
-  { label: "Mono", value: "mono" },
-];
+  { label: "Sunglasses", value: "sunglasses" },
+] as const;
 
 const HATS = [
   { label: "None", value: "none" },
   { label: "Cap", value: "cap" },
   { label: "Beanie", value: "beanie" },
-  { label: "Top Hat", value: "topHat" },
-  { label: "Bucket", value: "bucket" },
-  { label: "Crown", value: "crown" },
-  { label: "Headphones", value: "headphones" },
-];
+  { label: "Party", value: "party" },
+] as const;
 
 const HANDS: { label: string; value: HandStyle }[] = [
   { label: "Stick", value: "stick" },
@@ -101,9 +95,9 @@ const DEFAULT_CONFIG: AvatarConfig = {
   eyeColor: "#151515",
   mouthColor: "#151515",
 };
-
-function pick<T>(items: T[]) {
-  return items[Math.floor(Math.random() * items.length)];
+//comment
+function pick<T>(arr: readonly T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function OptionGroup<T extends string>({
@@ -174,8 +168,8 @@ export default function Builder() {
       mouth: pick(MOUTHS).value,
       hands: pick(HANDS).value,
       legs: pick(LEGS).value,
-      glasses: pick(GLASSES).value,
-      hat: pick(HATS).value,
+      glasses: pick(GLASSES).value as GlassesStyle,
+      hat: pick(HATS).value as HatStyle,
       limbColor: pick(PALETTE),
       headColor: pick(["#ffd8a8", "#ffe0bd", "#f8c89c", "#f7d7c4"]),
       eyeColor: pick(["#151515", "#1b1b1b", "#222222"]),
@@ -282,13 +276,13 @@ function downloadPNG() {
                 title="Glasses"
                 options={GLASSES}
                 value={config.glasses}
-               onChange={(value) => update("glasses", value as any)} />
+               onChange={(value) => update("glasses", value)} />
 
            <OptionGroup
                 title="Hat"
                 options={HATS}
                 value={config.hat}
-                onChange={(value) => update("hat", value as any)} /> 
+                onChange={(value) => update("hat", value)} /> 
 
           <section className="control-section">
             <div className="section-title">Colors</div>
