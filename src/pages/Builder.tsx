@@ -1,97 +1,289 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Avatar from "../components/Avatar/Avatar";
+import type {
+  AvatarConfig,
+  AvatarShape,
+  ColorTarget,
+  EyeStyle,
+  HandStyle,
+  LegStyle,
+  MouthStyle,
+} from "../types/avatar";
+
+const SHAPES: { label: string; value: AvatarShape }[] = [
+  { label: "Circle", value: "circle" },
+  { label: "Square", value: "square" },
+  { label: "Hex", value: "hex" },
+  { label: "Round Square", value: "roundSquare" },
+  { label: "Big Round Square", value: "bigRoundSquare" },
+  { label: "Toast", value: "toast" },
+];
+
+const EYES: { label: string; value: EyeStyle }[] = [
+  { label: "Dot", value: "dot" },
+  { label: "Star", value: "star" },
+  { label: "× Cross", value: "cross" },
+  { label: "Sleepy", value: "sleepy" },
+  { label: "+ Plus", value: "plus" },
+  { label: "Rounded Star", value: "roundedStar" },
+  { label: "Dash", value: "dash" },
+  { label: "Asterisk", value: "asterisk" },
+  { label: "$ Dollar", value: "dollar" },
+  { label: "Arrow Up", value: "arrowUp" },
+  { label: "Arrow Down", value: "arrowDown" },
+  { label: "Chevron", value: "chevron" },
+];
+
+const MOUTHS: { label: string; value: MouthStyle }[] = [
+  { label: "Smile", value: "smile" },
+  { label: "Flat", value: "flat" },
+  { label: "Smirk", value: "smirk" },
+  { label: "None", value: "none" },
+  { label: "Chevron Up", value: "chevronUp" },
+  { label: "Chevron Down", value: "chevronDown" },
+];
+
+const GLASSES = [
+  { label: "None", value: "none" },
+  { label: "Round", value: "round" },
+  { label: "Square", value: "square" },
+  { label: "Shades", value: "shades" },
+  { label: "Aviator", value: "aviator" },
+  { label: "Thick Frame", value: "thick" },
+  { label: "Mono", value: "mono" },
+];
+
+const HATS = [
+  { label: "None", value: "none" },
+  { label: "Cap", value: "cap" },
+  { label: "Beanie", value: "beanie" },
+  { label: "Top Hat", value: "topHat" },
+  { label: "Bucket", value: "bucket" },
+  { label: "Crown", value: "crown" },
+  { label: "Headphones", value: "headphones" },
+];
+
+const HANDS: { label: string; value: HandStyle }[] = [
+  { label: "Stick", value: "stick" },
+  { label: "Rounded", value: "rounded" },
+  { label: "None", value: "none" },
+];
+
+const LEGS: { label: string; value: LegStyle }[] = [
+  { label: "Stick", value: "stick" },
+  { label: "Rounded", value: "rounded" },
+  { label: "None", value: "none" },
+];
+
+const PALETTE = [
+  "#7c6cff",
+  "#ff6b6b",
+  "#c8ff57",
+  "#14d0cf",
+  "#ff7ab6",
+  "#ffe8a3",
+  "#ff8a1f",
+  "#16b5d8",
+];
+
+const DEFAULT_CONFIG: AvatarConfig = {
+  shape: "circle",
+  eyes: "arrowUp",
+  mouth: "smile",
+  hands: "none",
+  legs: "rounded",
+
+  glasses: "none",
+  hat: "none",
+
+  limbColor: "#7c6cff",
+  headColor: "#ffd8a8",
+  eyeColor: "#151515",
+  mouthColor: "#151515",
+};
+
+function pick<T>(items: T[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function OptionGroup<T extends string>({
+  title,
+  options,
+  value,
+  onChange,
+}: {
+  title: string;
+  options: { label: string; value: T }[];
+  value: T;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <section className="control-section">
+      <div className="section-title">{title}</div>
+      <div className="option-grid">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className={`option-pill ${value === option.value ? "active" : ""}`}
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function Builder() {
-  const [eyeType, setEyeType] = useState("dot");
-  const [mouthType, setMouthType] = useState("smile");
-  const [color, setColor] = useState("#f5cfa0");
+  const [config, setConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
+  const [colorTarget, setColorTarget] = useState<ColorTarget>("limb");
+
+  const activeTargetLabel = useMemo(() => {
+    switch (colorTarget) {
+      case "head":
+        return "Head color";
+      case "eye":
+        return "Eye color";
+      case "mouth":
+        return "Mouth color";
+      case "limb":
+      default:
+        return "Limb color";
+    }
+  }, [colorTarget]);
+
+  function update<K extends keyof AvatarConfig>(key: K, value: AvatarConfig[K]) {
+    setConfig((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function applyPalette(color: string) {
+    setConfig((prev) => {
+      if (colorTarget === "head") return { ...prev, headColor: color };
+      if (colorTarget === "eye") return { ...prev, eyeColor: color };
+      if (colorTarget === "mouth") return { ...prev, mouthColor: color };
+      return { ...prev, limbColor: color };
+    });
+  }
+
+  function randomizeAvatar() {
+    setConfig({
+      shape: pick(SHAPES).value,
+      eyes: pick(EYES).value,
+      mouth: pick(MOUTHS).value,
+      hands: pick(HANDS).value,
+      legs: pick(LEGS).value,
+      limbColor: pick(PALETTE),
+      headColor: pick(["#ffd8a8", "#ffe0bd", "#f8c89c", "#f7d7c4"]),
+      eyeColor: pick(["#151515", "#1b1b1b", "#222222"]),
+      mouthColor: pick(["#151515", "#1b1b1b", "#222222"]),
+    });
+    setColorTarget("limb");
+  }
+
+  function resetAvatar() {
+    setConfig(DEFAULT_CONFIG);
+    setColorTarget("limb");
+  }
 
   return (
-   <div className="h-screen w-full flex flex-row bg-slate-950 text-white">
-      <div className="w-1/3 flex items-center justify-center border-r border-slate-800">
-        <div className="w-64 h-64 bg-black rounded-2xl flex items-center justify-center">
-          <Avatar eyeType={eyeType} mouthType={mouthType} color={color} />
-        </div>
-      </div>
-
-      <div className="w-2/3 p-8 overflow-y-auto space-y-8">
+    <div className="app-shell">
+      <header className="topbar">
         <div>
-          <h2 className="text-2xl font-semibold">Customize</h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Change the avatar parts below.
-          </p>
+          <div className="eyebrow">Avatar Generator</div>
+          <h1>Build a custom avatar</h1>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 mb-3">
-            Eyes
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setEyeType("dot")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                eyeType === "dot"
-                  ? "bg-lime-400 text-black border-lime-400"
-                  : "bg-slate-800 border-slate-700 hover:bg-slate-700"
-              }`}
-            >
-              Dot
-            </button>
+        <div className="topbar-actions">
+          <button type="button" className="ghost-button" onClick={resetAvatar}>
+            Reset
+          </button>
+          <button type="button" className="primary-button" onClick={randomizeAvatar}>
+            Randomize
+          </button>
+        </div>
+      </header>
 
-            <button
-              onClick={() => setEyeType("line")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                eyeType === "line"
-                  ? "bg-lime-400 text-black border-lime-400"
-                  : "bg-slate-800 border-slate-700 hover:bg-slate-700"
-              }`}
-            >
-              Line
-            </button>
+      <main className="builder-grid">
+        <aside className="preview-card">
+          <div className="preview-inner">
+            <div className="preview-stage">
+              <Avatar config={config} />
+            </div>
           </div>
-        </div>
+        </aside>
 
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 mb-3">
-            Mouth
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setMouthType("smile")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                mouthType === "smile"
-                  ? "bg-lime-400 text-black border-lime-400"
-                  : "bg-slate-800 border-slate-700 hover:bg-slate-700"
-              }`}
-            >
-              Smile
-            </button>
+        <section className="controls-card">
+          <OptionGroup title="Shape" options={SHAPES} value={config.shape} onChange={(value) => update("shape", value)} />
+          <OptionGroup title="Eyes" options={EYES} value={config.eyes} onChange={(value) => update("eyes", value)} />
+          <OptionGroup title="Mouth" options={MOUTHS} value={config.mouth} onChange={(value) => update("mouth", value)} />
+          <OptionGroup title="Hands" options={HANDS} value={config.hands} onChange={(value) => update("hands", value)} />
+          <OptionGroup title="Legs" options={LEGS} value={config.legs} onChange={(value) => update("legs", value)} />
+          <OptionGroup
+                title="Glasses"
+                options={GLASSES}
+                value={config.glasses}
+                onChange={(value) => update("glasses", value)} />
 
-            <button
-              onClick={() => setMouthType("sad")}
-              className={`px-4 py-2 rounded-lg border transition ${
-                mouthType === "sad"
-                  ? "bg-lime-400 text-black border-lime-400"
-                  : "bg-slate-800 border-slate-700 hover:bg-slate-700"
-              }`}
-            >
-              Sad
-            </button>
-          </div>
-        </div>
+           <OptionGroup
+                title="Hat"
+                options={HATS}
+                value={config.hat}
+                onChange={(value) => update("hat", value)} /> 
 
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 mb-3">
-            Color
-          </p>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            className="w-12 h-12 rounded-full border-2 border-slate-700 cursor-pointer bg-transparent"
-          />
-        </div>
-      </div>
+          <section className="control-section">
+            <div className="section-title">Colors</div>
+
+            <div className="color-target-row">
+              {(["limb", "head", "eye", "mouth"] as ColorTarget[]).map((target) => {
+                const label =
+                  target === "limb"
+                    ? "Limb color"
+                    : target === "head"
+                      ? "Head color"
+                      : target === "eye"
+                        ? "Eye color"
+                        : "Mouth color";
+
+                const dotColor =
+                  target === "limb"
+                    ? config.limbColor
+                    : target === "head"
+                      ? config.headColor
+                      : target === "eye"
+                        ? config.eyeColor
+                        : config.mouthColor;
+
+                return (
+                  <button
+                    key={target}
+                    type="button"
+                    className={`target-pill ${colorTarget === target ? "active" : ""}`}
+                    onClick={() => setColorTarget(target)}
+                  >
+                    <span className="target-dot" style={{ backgroundColor: dotColor }} />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="palette-grid">
+              {PALETTE.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`swatch ${config.limbColor === color && colorTarget === "limb" ? "selected" : ""}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => applyPalette(color)}
+                  aria-label={`Set ${activeTargetLabel} to ${color}`}
+                />
+              ))}
+            </div>
+          </section>
+        </section>
+      </main>
     </div>
   );
 }
