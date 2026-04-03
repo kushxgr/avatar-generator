@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+
 import type { AvatarConfig } from "../../types/avatar";
 
 type Props = {
@@ -18,9 +20,20 @@ function Star({ x, y, size, fill }: { x: number; y: number; size: number; fill: 
   return <polygon points={points} fill={fill} stroke={fill} strokeLinejoin="round" strokeWidth="1.5" />;
 }
 
-export default function Avatar({ config }: Props) {
-  const { shape, eyes, mouth, hands, legs, glasses, haat, limbColor, headColor, eyeColor, mouthColor } = config;
-
+const Avatar = forwardRef<SVGSVGElement, Props>(({ config }, ref) => {
+  const {
+  shape,
+  eyes,
+  mouth,
+  hands,
+  legs,
+  glasses,
+  hat,
+  limbColor,
+  headColor,
+  eyeColor,
+  mouthColor,
+} = config;
   const renderHead = () => {
     switch (shape) {
       case "square":
@@ -249,7 +262,7 @@ const renderHat = () => {
   };
 
   return (
-    <svg viewBox="0 0 240 220" className="avatar-svg" role="img" aria-label="Custom avatar">
+    <svg ref={ref} viewBox="0 0 240 220" className="avatar-svg" role="img" aria-label="Custom avatar">
       <defs>
         <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
           <feDropShadow dx="0" dy="8" stdDeviation="8" floodOpacity="0.22" />
@@ -260,12 +273,13 @@ const renderHat = () => {
       <g filter="url(#shadow)">
         {renderHands()}
         {renderLegs()}
+        {renderHat()}
         {renderHead()}
         {renderEyes()}
-        {renderMouth()}
-        {renderHat()}
         {renderGlasses()}
+        {renderMouth()}
       </g>
     </svg>
   );
-}
+});
+export default Avatar;

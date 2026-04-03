@@ -55,6 +55,8 @@ export type AvatarConfig = {
   shape: AvatarShape;
   eyes: EyeStyle;
   mouth: MouthStyle;
+  glasses: GlassesStyle;
+  hat: HatStyle;
   hands: HandStyle;
   legs: LegStyle;
   limbColor: string;

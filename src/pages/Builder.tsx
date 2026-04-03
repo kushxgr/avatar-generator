@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import Avatar from "../components/Avatar/Avatar";
 import type {
   AvatarConfig,
@@ -139,7 +139,7 @@ function OptionGroup<T extends string>({
 export default function Builder() {
   const [config, setConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
   const [colorTarget, setColorTarget] = useState<ColorTarget>("limb");
-
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const activeTargetLabel = useMemo(() => {
     switch (colorTarget) {
       case "head":
@@ -186,6 +186,51 @@ export default function Builder() {
     setConfig(DEFAULT_CONFIG);
     setColorTarget("limb");
   }
+  function downloadSVG() {
+  if (!svgRef.current) return;
+
+  const svgData = new XMLSerializer().serializeToString(svgRef.current);
+  const blob = new Blob([svgData], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "avatar.svg";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function downloadPNG() {
+  if (!svgRef.current) return;
+
+  const svgData = new XMLSerializer().serializeToString(svgRef.current);
+  const img = new Image();
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 240;
+    canvas.height = 220;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(img, 0, 0);
+
+    const pngUrl = canvas.toDataURL("image/png");
+
+    const a = document.createElement("a");
+    a.href = pngUrl;
+    a.download = "avatar.png";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  img.src = url;
+}
 
   return (
     <div className="app-shell">
@@ -209,9 +254,12 @@ export default function Builder() {
         <aside className="preview-card">
           <div className="preview-inner">
             <div className="preview-stage">
-              <Avatar config={config} />
+                <Avatar ref={svgRef} config={config} />
+
+                
             </div>
-          </div>
+   
+         </div>
         </aside>
 
         <section className="controls-card">
@@ -224,13 +272,13 @@ export default function Builder() {
                 title="Glasses"
                 options={GLASSES}
                 value={config.glasses}
-                onChange={(value) => update("glasses", value)} />
+               onChange={(value) => update("glasses", value as any)} />
 
            <OptionGroup
                 title="Hat"
                 options={HATS}
                 value={config.hat}
-                onChange={(value) => update("hat", value)} /> 
+                onChange={(value) => update("hat", value as any)} /> 
 
           <section className="control-section">
             <div className="section-title">Colors</div>
