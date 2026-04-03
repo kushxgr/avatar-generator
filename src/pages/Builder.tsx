@@ -187,18 +187,18 @@ export default function Builder() {
     setColorTarget("limb");
   }
   function downloadSVG() {
-  if (!svgRef.current) return;
+    if (!svgRef.current) return;
 
-  const svgData = new XMLSerializer().serializeToString(svgRef.current);
-  const blob = new Blob([svgData], { type: "image/svg+xml" });
-  const url = URL.createObjectURL(blob);
+    const svgData = new XMLSerializer().serializeToString(svgRef.current);
+    const blob = new Blob([svgData], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "avatar.svg";
-  a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "avatar.svg";
+    a.click();
 
-  URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
 }
 
 function downloadPNG() {
@@ -256,7 +256,15 @@ function downloadPNG() {
             <div className="preview-stage">
                 <Avatar ref={svgRef} config={config} />
 
-                
+                <div style={{ marginTop: "16px", display: "flex", gap: "10px" }}>
+                    <button type="button" className="ghost-button" onClick={downloadSVG}>
+                        Copy SVG
+                    </button>
+
+                    <button type="button" className="primary-button" onClick={downloadPNG}>
+                        Download PNG
+                    </button>
+                </div>
             </div>
    
          </div>
