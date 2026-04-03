@@ -174,6 +174,8 @@ export default function Builder() {
       mouth: pick(MOUTHS).value,
       hands: pick(HANDS).value,
       legs: pick(LEGS).value,
+      glasses: pick(GLASSES).value,
+      hat: pick(HATS).value,
       limbColor: pick(PALETTE),
       headColor: pick(["#ffd8a8", "#ffe0bd", "#f8c89c", "#f7d7c4"]),
       eyeColor: pick(["#151515", "#1b1b1b", "#222222"]),
